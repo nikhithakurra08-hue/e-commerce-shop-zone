@@ -13,7 +13,7 @@ export default function CartPage() {
   const { items, savedForLater } = useAppSelector(s => s.cart)
   const { isAuthenticated } = useAppSelector(s => s.auth)
 
-  const subtotal = items.reduce((acc, i) => acc + i.product.price * i.quantity, 0)
+  const subtotal = items.reduce((acc, i) => acc + (i.price ?? i.product.price) * i.quantity, 0)
   const shipping = calculateShipping(subtotal)
   const tax = calculateTax(subtotal)
   const total = subtotal + shipping + tax
@@ -21,7 +21,7 @@ export default function CartPage() {
   const handleCheckout = () => {
     if (!isAuthenticated) {
       toast.error('Please login to proceed')
-      navigate('/login')
+      navigate(`/login?next=${encodeURIComponent('/checkout')}`)
       return
     }
     navigate('/checkout')
@@ -59,22 +59,22 @@ export default function CartPage() {
                   <p className="text-green-600 text-xs mt-0.5">In Stock</p>
                   <div className="flex items-center justify-between mt-3 flex-wrap gap-2">
                     <div className="flex items-center border border-gray-300 dark:border-gray-600 rounded-lg overflow-hidden">
-                      <button onClick={() => { if (item.quantity <= 1) { dispatch(removeFromCart(item.product.id)); toast.success('Removed') } else dispatch(updateQuantity({ id: item.product.id, qty: item.quantity - 1 })) }} className="px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <button onClick={() => { if (item.quantity <= 1) { dispatch(removeFromCart({ id: item.product.id, selectedVariants: item.selectedVariants })); toast.success('Removed') } else dispatch(updateQuantity({ id: item.product.id, qty: item.quantity - 1, selectedVariants: item.selectedVariants })) }} className="px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <Minus size={12} />
                       </button>
                       <span className="px-3 py-1.5 text-sm font-medium">{item.quantity}</span>
-                      <button onClick={() => dispatch(updateQuantity({ id: item.product.id, qty: Math.min(item.product.stock, item.quantity + 1) }))} className="px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700">
+                      <button onClick={() => dispatch(updateQuantity({ id: item.product.id, qty: Math.min(item.product.stock, item.quantity + 1), selectedVariants: item.selectedVariants }))} className="px-2.5 py-1.5 hover:bg-gray-100 dark:hover:bg-gray-700">
                         <Plus size={12} />
                       </button>
                     </div>
-                    <span className="font-bold text-gray-900 dark:text-white">{formatCurrency(item.product.price * item.quantity)}</span>
+                    <span className="font-bold text-gray-900 dark:text-white">{formatCurrency((item.price ?? item.product.price) * item.quantity)}</span>
                   </div>
                   <div className="flex gap-3 mt-2">
-                    <button onClick={() => { dispatch(saveForLater(item.product.id)); toast.success('Saved for later') }} className="text-xs text-amazon-600 hover:underline">Save for Later</button>
+                    <button onClick={() => { dispatch(saveForLater({ id: item.product.id, selectedVariants: item.selectedVariants })); toast.success('Saved for later') }} className="text-xs text-amazon-600 hover:underline">Save for Later</button>
                     <button onClick={() => { dispatch(toggleWishlist(item.product)); toast.success('Moved to wishlist') }} className="flex items-center gap-1 text-xs text-gray-500 hover:text-red-500">
                       <Heart size={12} /> Wishlist
                     </button>
-                    <button onClick={() => { dispatch(removeFromCart(item.product.id)); toast.success('Removed') }} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600">
+                    <button onClick={() => { dispatch(removeFromCart({ id: item.product.id, selectedVariants: item.selectedVariants })); toast.success('Removed') }} className="flex items-center gap-1 text-xs text-red-500 hover:text-red-600">
                       <Trash2 size={12} /> Remove
                     </button>
                   </div>
@@ -95,8 +95,8 @@ export default function CartPage() {
                       <p className="font-medium text-gray-900 dark:text-white text-sm line-clamp-1">{item.product.name}</p>
                       <p className="text-sm font-bold mt-1">{formatCurrency(item.product.price)}</p>
                       <div className="flex gap-3 mt-2">
-                        <button onClick={() => { dispatch(moveToCart(item.product.id)); toast.success('Moved to cart') }} className="text-xs text-amazon-600 hover:underline">Move to Cart</button>
-                        <button onClick={() => dispatch(removeSaved(item.product.id))} className="text-xs text-red-500 hover:underline">Remove</button>
+                        <button onClick={() => { dispatch(moveToCart({ id: item.product.id, selectedVariants: item.selectedVariants })); toast.success('Moved to cart') }} className="text-xs text-amazon-600 hover:underline">Move to Cart</button>
+                        <button onClick={() => dispatch(removeSaved({ id: item.product.id, selectedVariants: item.selectedVariants }))} className="text-xs text-red-500 hover:underline">Remove</button>
                       </div>
                     </div>
                   </div>

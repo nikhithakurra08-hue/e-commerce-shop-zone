@@ -24,39 +24,51 @@ const cartSlice = createSlice({
   name: 'cart',
   initialState,
   reducers: {
-    addToCart(state, action: PayloadAction<Product>) {
-      const existing = state.items.find(i => i.product.id === action.payload.id)
-      if (existing) existing.quantity += 1
-      else state.items.push({ product: action.payload, quantity: 1 })
+    addToCart(state, action: PayloadAction<{ product: Product; quantity?: number; selectedVariants?: Record<string, string>; price?: number }>) {
+      const { product, quantity = 1, selectedVariants, price } = action.payload
+      const existing = state.items.find(i => i.product.id === product.id && JSON.stringify(i.selectedVariants || {}) === JSON.stringify(selectedVariants || {}))
+      if (existing) existing.quantity += quantity
+      else state.items.push({ product, quantity, selectedVariants, price })
       persist(state)
     },
-    removeFromCart(state, action: PayloadAction<string>) {
-      state.items = state.items.filter(i => i.product.id !== action.payload)
+    removeFromCart(state, action: PayloadAction<{ id: string; selectedVariants?: Record<string, string> }>) {
+      const { id, selectedVariants } = action.payload
+      if (selectedVariants) {
+        state.items = state.items.filter(i => !(i.product.id === id && JSON.stringify(i.selectedVariants || {}) === JSON.stringify(selectedVariants || {})))
+      } else {
+        state.items = state.items.filter(i => i.product.id !== id)
+      }
       persist(state)
     },
-    updateQuantity(state, action: PayloadAction<{ id: string; qty: number }>) {
-      const item = state.items.find(i => i.product.id === action.payload.id)
-      if (item) item.quantity = action.payload.qty
+    updateQuantity(state, action: PayloadAction<{ id: string; qty: number; selectedVariants?: Record<string, string> }>) {
+      const { id, qty, selectedVariants } = action.payload
+      const item = selectedVariants
+        ? state.items.find(i => i.product.id === id && JSON.stringify(i.selectedVariants || {}) === JSON.stringify(selectedVariants || {}))
+        : state.items.find(i => i.product.id === id)
+      if (item) item.quantity = qty
       persist(state)
     },
-    saveForLater(state, action: PayloadAction<string>) {
-      const item = state.items.find(i => i.product.id === action.payload)
-      if (item) {
+    saveForLater(state, action: PayloadAction<{ id: string; selectedVariants?: Record<string, string> }>) {
+      const { id, selectedVariants } = action.payload
+      const idx = state.items.findIndex(i => i.product.id === id && (!selectedVariants || JSON.stringify(i.selectedVariants || {}) === JSON.stringify(selectedVariants || {})))
+      if (idx >= 0) {
+        const [item] = state.items.splice(idx, 1)
         state.savedForLater.push(item)
-        state.items = state.items.filter(i => i.product.id !== action.payload)
         persist(state)
       }
     },
-    moveToCart(state, action: PayloadAction<string>) {
-      const item = state.savedForLater.find(i => i.product.id === action.payload)
-      if (item) {
+    moveToCart(state, action: PayloadAction<{ id: string; selectedVariants?: Record<string, string> }>) {
+      const { id, selectedVariants } = action.payload
+      const idx = state.savedForLater.findIndex(i => i.product.id === id && (!selectedVariants || JSON.stringify(i.selectedVariants || {}) === JSON.stringify(selectedVariants || {})))
+      if (idx >= 0) {
+        const [item] = state.savedForLater.splice(idx, 1)
         state.items.push(item)
-        state.savedForLater = state.savedForLater.filter(i => i.product.id !== action.payload)
         persist(state)
       }
     },
-    removeSaved(state, action: PayloadAction<string>) {
-      state.savedForLater = state.savedForLater.filter(i => i.product.id !== action.payload)
+    removeSaved(state, action: PayloadAction<{ id: string; selectedVariants?: Record<string, string> }>) {
+      const { id, selectedVariants } = action.payload
+      state.savedForLater = state.savedForLater.filter(i => !(i.product.id === id && (!selectedVariants || JSON.stringify(i.selectedVariants || {}) === JSON.stringify(selectedVariants || {}))))
       persist(state)
     },
     clearCart(state) {

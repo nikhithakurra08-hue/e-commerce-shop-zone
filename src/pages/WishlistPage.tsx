@@ -49,7 +49,7 @@ export default function WishlistPage() {
                 </div>
                 <div className="flex gap-2 mt-3">
                   <button
-                    onClick={() => { dispatch(addToCart(item.product)); toast.success('Added to cart') }}
+                    onClick={() => { dispatch(addToCart({ product: item.product, quantity: 1 })); toast.success('Added to cart') }}
                     className="flex-1 flex items-center justify-center gap-1 btn-primary text-xs py-1.5"
                     disabled={item.product.stock === 0}
                   >

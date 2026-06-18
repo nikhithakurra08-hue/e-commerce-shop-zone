@@ -2,16 +2,17 @@ import { Helmet } from 'react-helmet-async'
 import { ShoppingBag, Users, Package, TrendingUp, DollarSign, Star } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts'
 import { useAppSelector } from '../../hooks/useAppDispatch'
-import { products, salesData, mockOrders } from '../../data/mockData'
+import { salesData } from '../../data/mockData'
 import { formatCurrency } from '../../utils/format'
 
 export default function AdminDashboard() {
   const { orders } = useAppSelector(s => s.orders)
+  const products = useAppSelector(s => s.products.items)
 
   const totalRevenue = orders.filter(o => o.paymentStatus === 'paid').reduce((a, o) => a + o.total, 0)
   const totalOrders = orders.length
   const activeProducts = products.filter(p => p.stock > 0).length
-  const avgRating = (products.reduce((a, p) => a + p.rating, 0) / products.length).toFixed(1)
+  const avgRating = products.length ? (products.reduce((a, p) => a + p.rating, 0) / products.length).toFixed(1) : '0.0'
 
   const stats = [
     { label: 'Total Revenue', value: formatCurrency(totalRevenue), icon: DollarSign, color: 'bg-green-100 text-green-600 dark:bg-green-900/30', change: '+12%' },

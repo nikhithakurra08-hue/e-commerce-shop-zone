@@ -35,7 +35,7 @@ export default function CheckoutPage() {
 
   const { register, handleSubmit, formState: { errors } } = useForm<AddressForm>()
 
-  const subtotal = items.reduce((acc, i) => acc + i.product.price * i.quantity, 0)
+  const subtotal = items.reduce((acc, i) => acc + (i.price ?? i.product.price) * i.quantity, 0)
   const shipping = calculateShipping(subtotal)
   const tax = calculateTax(subtotal)
   const couponDiscount = appliedCoupon ? (appliedCoupon.type === 'percentage' ? Math.min(Math.round(subtotal * appliedCoupon.value / 100), appliedCoupon.maxDiscount || Infinity) : appliedCoupon.value) : 0
@@ -62,7 +62,7 @@ export default function CheckoutPage() {
     const id = generateOrderId()
     const order: Order = {
       id, userId: user!.id,
-      items: items.map(i => ({ product: i.product, quantity: i.quantity, price: i.product.price })),
+      items: items.map(i => ({ product: i.product, quantity: i.quantity, price: i.price ?? i.product.price, selectedVariants: i.selectedVariants })),
       address: selectedAddress,
       paymentMethod,
       paymentStatus: paymentMethod === 'cod' ? 'pending' : 'paid',

@@ -16,6 +16,7 @@ import OrdersPage from './pages/OrdersPage'
 import OrderDetailPage from './pages/OrderDetailPage'
 import ProfilePage from './pages/ProfilePage'
 import NotFoundPage from './pages/NotFoundPage'
+import DealsPage from './pages/DealsPage'
 
 // Auth Pages
 import LoginPage from './pages/Auth/LoginPage'
@@ -29,9 +30,13 @@ import AdminOrders from './pages/Admin/AdminOrders'
 import AdminUsers from './pages/Admin/AdminUsers'
 import AdminCategories from './pages/Admin/AdminCategories'
 
+import { useLocation } from 'react-router-dom'
+
 function PrivateRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated } = useAppSelector(s => s.auth)
-  return isAuthenticated ? <>{children}</> : <Navigate to="/login" replace />
+  const location = useLocation()
+  const next = encodeURIComponent(location.pathname + location.search)
+  return isAuthenticated ? <>{children}</> : <Navigate to={`/login?next=${next}`} replace />
 }
 
 function AdminRoute({ children }: { children: React.ReactNode }) {
@@ -68,6 +73,7 @@ export default function App() {
           <Route index element={<HomePage />} />
           <Route path="products" element={<ProductsPage />} />
           <Route path="products/:slug" element={<ProductDetailPage />} />
+          <Route path="deals" element={<DealsPage />} />
           <Route path="cart" element={<CartPage />} />
           <Route path="wishlist" element={<WishlistPage />} />
           <Route path="checkout" element={<PrivateRoute><CheckoutPage /></PrivateRoute>} />

@@ -31,6 +31,20 @@ export interface Category {
   description?: string
 }
 
+export interface ProductVariant {
+  type: 'size' | 'color' | 'storage' | 'ram'
+  options: string[]
+}
+
+export interface QnA {
+  id: string
+  question: string
+  askedBy: string
+  answer?: string
+  answeredBy?: string
+  createdAt: string
+}
+
 export interface Product {
   id: string
   name: string
@@ -52,6 +66,13 @@ export interface Product {
   reviews: Review[]
   isFeatured: boolean
   isBestSeller: boolean
+  isNew?: boolean
+  isAssured?: boolean
+  hasEMI?: boolean
+  freeDelivery?: boolean
+  deliveryDays?: number
+  variants?: ProductVariant[]
+  qna?: QnA[]
   createdAt: string
 }
 
@@ -70,6 +91,8 @@ export interface Review {
 export interface CartItem {
   product: Product
   quantity: number
+  selectedVariants?: Record<string, string>
+  price?: number
   savedForLater?: boolean
 }
 
@@ -105,6 +128,7 @@ export interface OrderItem {
   product: Product
   quantity: number
   price: number
+  selectedVariants?: Record<string, string>
 }
 
 export interface Coupon {

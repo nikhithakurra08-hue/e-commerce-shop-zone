@@ -2,18 +2,20 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Plus, Edit, Trash2 } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { categories as initialCats } from '../../data/mockData'
+import { useAppDispatch, useAppSelector } from '../../hooks/useAppDispatch'
+import { addCategory, updateCategory, removeCategory } from '../../store/slices/categorySlice'
 import type { Category } from '../../types'
 
 export default function AdminCategories() {
-  const [cats, setCats] = useState<Category[]>(initialCats)
+  const dispatch = useAppDispatch()
+  const cats = useAppSelector(s => s.categories.items)
   const [showForm, setShowForm] = useState(false)
   const [editCat, setEditCat] = useState<Category | null>(null)
   const [formData, setFormData] = useState({ name: '', slug: '', description: '' })
 
   const handleDelete = (id: string) => {
     if (window.confirm('Delete category?')) {
-      setCats(c => c.filter(x => x.id !== id))
+      dispatch(removeCategory(id))
       toast.success('Category deleted')
     }
   }
@@ -26,12 +28,13 @@ export default function AdminCategories() {
 
   const handleSave = () => {
     if (!formData.name) { toast.error('Name is required'); return }
+    const slug = formData.slug || formData.name.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-')
     if (editCat) {
-      setCats(cs => cs.map(c => c.id === editCat.id ? { ...c, ...formData } : c))
+      dispatch(updateCategory({ ...editCat, ...formData, slug }))
       toast.success('Category updated')
     } else {
-      const newCat: Category = { id: 'c_' + Date.now(), image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400', ...formData }
-      setCats(c => [...c, newCat])
+      const newCat: Category = { id: 'c_' + Date.now(), image: 'https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400', name: formData.name, slug, description: formData.description }
+      dispatch(addCategory(newCat))
       toast.success('Category added')
     }
     setShowForm(false)

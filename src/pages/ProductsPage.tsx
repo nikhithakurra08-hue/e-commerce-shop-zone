@@ -1,8 +1,8 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useMemo, useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { ArrowUpDown } from 'lucide-react'
-import { products } from '../data/mockData'
+import { useAppSelector } from '../hooks/useAppDispatch'
 import ProductCard from '../components/product/ProductCard'
 import ProductFilters from '../components/product/ProductFilters'
 import { ProductCardSkeleton } from '../components/common/Skeleton'
@@ -31,6 +31,7 @@ export default function ProductsPage() {
   const [sortBy, setSortBy] = useState('relevance')
   const [filters, setFilters] = useState<Filters>({ categories: [], brands: [], priceMin: 0, priceMax: 0, minRating: 0, inStock: false })
 
+  const products = useAppSelector(s => s.products.items)
   const query = searchParams.get('q') || ''
   const categoryParam = searchParams.get('category') || ''
   const featuredParam = searchParams.get('featured') === 'true'
@@ -92,6 +93,17 @@ export default function ProductsPage() {
           <div>
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">{title}</h1>
             {!loading && <p className="text-sm text-gray-500">{filtered.length} results found</p>}
+          </div>
+          {/* Active filters chips */}
+          <div className="w-full md:w-auto mt-2 md:mt-0">
+            <div className="flex flex-wrap gap-2">
+              {filters.categories.map(c => <button key={c} onClick={() => setFilters(f => ({ ...f, categories: f.categories.filter(x => x !== c) }))} className="text-xs px-2 py-1 bg-amazon-50 dark:bg-amazon-900/20 text-amazon-600 rounded">{c.replace(/-/g, ' ')}</button>)}
+              {filters.brands.map(b => <button key={b} onClick={() => setFilters(f => ({ ...f, brands: f.brands.filter(x => x !== b) }))} className="text-xs px-2 py-1 bg-amazon-50 dark:bg-amazon-900/20 text-amazon-600 rounded">{b}</button>)}
+              {filters.priceMin > 0 && <button onClick={() => setFilters(f => ({ ...f, priceMin: 0 }))} className="text-xs px-2 py-1 bg-amazon-50 dark:bg-amazon-900/20 text-amazon-600 rounded">Min ₹{filters.priceMin}</button>}
+              {filters.priceMax > 0 && <button onClick={() => setFilters(f => ({ ...f, priceMax: 0 }))} className="text-xs px-2 py-1 bg-amazon-50 dark:bg-amazon-900/20 text-amazon-600 rounded">Max ₹{filters.priceMax}</button>}
+              {filters.minRating > 0 && <button onClick={() => setFilters(f => ({ ...f, minRating: 0 }))} className="text-xs px-2 py-1 bg-amazon-50 dark:bg-amazon-900/20 text-amazon-600 rounded">{filters.minRating}★ & up</button>}
+              {filters.inStock && <button onClick={() => setFilters(f => ({ ...f, inStock: false }))} className="text-xs px-2 py-1 bg-amazon-50 dark:bg-amazon-900/20 text-amazon-600 rounded">In Stock</button>}
+            </div>
           </div>
           <div className="flex items-center gap-2">
             <ArrowUpDown size={16} className="text-gray-400" />

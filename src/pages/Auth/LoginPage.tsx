@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { LogIn } from 'lucide-react'
@@ -7,21 +7,25 @@ import toast from 'react-hot-toast'
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppDispatch'
 import { login } from '../../store/slices/authSlice'
 
-interface FormData { email: string; password: string }
+interface FormData { email: string; password: string; remember?: boolean }
 
 export default function LoginPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const { isAuthenticated } = useAppSelector(s => s.auth)
   const { register, handleSubmit, setValue, formState: { errors, isSubmitting } } = useForm<FormData>()
+  const location = useLocation()
+  const search = new URLSearchParams(location.search)
+  let next = search.get('next') || '/'
+  if (['/login', '/signup', '/forgot-password'].includes(next)) next = '/'
 
-  useEffect(() => { if (isAuthenticated) navigate('/') }, [isAuthenticated, navigate])
+  useEffect(() => { if (isAuthenticated) navigate(next, { replace: true }) }, [isAuthenticated, navigate, next])
 
   const onSubmit = async (data: FormData) => {
     await new Promise(r => setTimeout(r, 600))
-    dispatch(login(data))
+    dispatch(login({ ...data, remember: !!data.remember }))
     toast.success('Welcome back!')
-    navigate('/')
+    navigate(next, { replace: true })
   }
 
   return (
@@ -64,8 +68,12 @@ export default function LoginPage() {
                 />
                 {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password.message}</p>}
               </div>
-              <div className="flex justify-end">
-                <Link to="/forgot-password" className="text-sm text-amazon-600 hover:underline">Forgot password?</Link>
+              <div className="flex justify-between items-center">
+                <Link to={`/forgot-password?next=${encodeURIComponent(next)}`} className="text-sm text-amazon-600 hover:underline">Forgot password?</Link>
+                <label className="flex items-center gap-2 text-sm">
+                  <input type="checkbox" {...register('remember')} id="remember" className="h-4 w-4" />
+                  <span className="text-gray-600">Remember me</span>
+                </label>
               </div>
               <button type="submit" disabled={isSubmitting} className="w-full btn-primary py-3 text-base flex items-center justify-center gap-2">
                 {isSubmitting ? 'Signing in…' : <><LogIn size={18} /> Sign In</>}
@@ -74,7 +82,7 @@ export default function LoginPage() {
 
             <p className="text-center text-sm text-gray-500 mt-5">
               Don't have an account?{' '}
-              <Link to="/signup" className="text-amazon-600 hover:underline font-medium">Create one</Link>
+              <Link to={`/signup?next=${encodeURIComponent(next)}`} className="text-amazon-600 hover:underline font-medium">Create one</Link>
             </p>
           </div>
         </div>

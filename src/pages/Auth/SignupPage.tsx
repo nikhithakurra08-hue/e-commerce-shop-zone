@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate, useLocation } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { UserPlus } from 'lucide-react'
@@ -12,16 +12,19 @@ interface FormData { name: string; email: string; password: string; confirm: str
 export default function SignupPage() {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
+  const location = useLocation()
   const { isAuthenticated } = useAppSelector(s => s.auth)
   const { register, handleSubmit, watch, formState: { errors, isSubmitting } } = useForm<FormData>()
+  let next = new URLSearchParams(location.search).get('next') || '/'
+  if (['/login', '/signup', '/forgot-password'].includes(next)) next = '/'
 
-  useEffect(() => { if (isAuthenticated) navigate('/') }, [isAuthenticated, navigate])
+  useEffect(() => { if (isAuthenticated) navigate(next, { replace: true }) }, [isAuthenticated, navigate, next])
 
   const onSubmit = async (data: FormData) => {
     await new Promise(r => setTimeout(r, 600))
     dispatch(signup({ name: data.name, email: data.email }))
     toast.success('Account created! Welcome to ShopZone 🎉')
-    navigate('/')
+    navigate(next, { replace: true })
   }
 
   return (
@@ -64,7 +67,7 @@ export default function SignupPage() {
 
             <p className="text-center text-sm text-gray-500 mt-5">
               Already have an account?{' '}
-              <Link to="/login" className="text-amazon-600 hover:underline font-medium">Sign in</Link>
+              <Link to={`/login?next=${encodeURIComponent(next)}`} className="text-amazon-600 hover:underline font-medium">Sign in</Link>
             </p>
           </div>
         </div>

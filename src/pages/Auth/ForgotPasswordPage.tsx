@@ -1,10 +1,12 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { Helmet } from 'react-helmet-async'
 import { useForm } from 'react-hook-form'
 import { Mail, ArrowLeft, CheckCircle } from 'lucide-react'
 
 export default function ForgotPasswordPage() {
+  const location = useLocation()
+  const next = new URLSearchParams(location.search).get('next') || '/'
   const [sent, setSent] = useState(false)
   const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<{ email: string }>()
 
@@ -27,7 +29,7 @@ export default function ForgotPasswordPage() {
                 <CheckCircle size={52} className="text-green-500 mx-auto mb-4" />
                 <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">Check your email</h2>
                 <p className="text-gray-500 text-sm mb-6">We've sent a password reset link to your email address. It may take a few minutes.</p>
-                <Link to="/login" className="btn-primary inline-flex items-center gap-2"><ArrowLeft size={16} /> Back to Sign In</Link>
+                <Link to={`/login?next=${encodeURIComponent(next)}`} className="btn-primary inline-flex items-center gap-2"><ArrowLeft size={16} /> Back to Sign In</Link>
               </div>
             ) : (
               <>
@@ -43,7 +45,7 @@ export default function ForgotPasswordPage() {
                     {isSubmitting ? 'Sending…' : 'Send Reset Link'}
                   </button>
                 </form>
-                <Link to="/login" className="flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 mt-5">
+                <Link to={`/login?next=${encodeURIComponent(next)}`} className="flex items-center justify-center gap-2 text-sm text-gray-500 hover:text-gray-800 dark:hover:text-gray-200 mt-5">
                   <ArrowLeft size={14} /> Back to Sign In
                 </Link>
               </>

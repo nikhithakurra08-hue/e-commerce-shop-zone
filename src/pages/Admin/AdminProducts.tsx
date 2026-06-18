@@ -2,45 +2,92 @@ import { useState } from 'react'
 import { Helmet } from 'react-helmet-async'
 import { Plus, Search, Edit, Trash2, Eye } from 'lucide-react'
 import toast from 'react-hot-toast'
-import { products as initialProducts } from '../../data/mockData'
+import { useAppDispatch, useAppSelector } from '../../hooks/useAppDispatch'
+import { addProduct, updateProduct, removeProduct } from '../../store/slices/productSlice'
 import { formatCurrency } from '../../utils/format'
 import StarRating from '../../components/common/StarRating'
 import type { Product } from '../../types'
 
 export default function AdminProducts() {
-  const [products, setProducts] = useState<Product[]>(initialProducts)
+  const dispatch = useAppDispatch()
+  const products = useAppSelector(s => s.products.items)
+  const categories = useAppSelector(s => s.categories.items)
   const [search, setSearch] = useState('')
   const [showForm, setShowForm] = useState(false)
   const [editProduct, setEditProduct] = useState<Product | null>(null)
-  const [formData, setFormData] = useState({ name: '', brand: '', price: '', originalPrice: '', stock: '', category: '' })
+  const [formData, setFormData] = useState({ name: '', brand: '', price: '', originalPrice: '', stock: '', category: categories[0]?.name || '', image: '' })
 
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()) || p.brand.toLowerCase().includes(search.toLowerCase()))
 
   const handleDelete = (id: string) => {
     if (window.confirm('Delete this product?')) {
-      setProducts(p => p.filter(x => x.id !== id))
+      dispatch(removeProduct(id))
       toast.success('Product deleted')
     }
   }
 
   const handleEdit = (product: Product) => {
     setEditProduct(product)
-    setFormData({ name: product.name, brand: product.brand, price: String(product.price), originalPrice: String(product.originalPrice), stock: String(product.stock), category: product.category })
+    setFormData({
+      name: product.name,
+      brand: product.brand,
+      price: String(product.price),
+      originalPrice: String(product.originalPrice),
+      stock: String(product.stock),
+      category: product.category,
+      image: product.images[0] || '',
+    })
     setShowForm(true)
   }
 
   const handleSave = () => {
     if (!formData.name || !formData.price) { toast.error('Name and price are required'); return }
+    const selectedCategory = categories.find(c => c.name === formData.category) || categories[0]
+    const categoryName = selectedCategory?.name || formData.category || 'General'
+    const categoryId = selectedCategory?.id || 'c1'
+
     if (editProduct) {
-      setProducts(ps => ps.map(p => p.id === editProduct.id ? {
-        ...p, name: formData.name, brand: formData.brand,
-        price: Number(formData.price), originalPrice: Number(formData.originalPrice),
-        stock: Number(formData.stock), category: formData.category,
-      } : p))
+      dispatch(updateProduct({
+        ...editProduct,
+        name: formData.name,
+        brand: formData.brand,
+        price: Number(formData.price),
+        originalPrice: Number(formData.originalPrice) || Number(formData.price),
+        discount: Math.max(0, Math.round(((Number(formData.originalPrice) || Number(formData.price)) - Number(formData.price)) / (Number(formData.originalPrice) || Number(formData.price)) * 100)),
+        stock: Number(formData.stock),
+        category: categoryName,
+        categoryId,
+        images: [formData.image || editProduct.images[0] || 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600'],
+      }))
       toast.success('Product updated')
     } else {
-      toast.success('Product added (demo — mock data only)')
+      const newProduct: Product = {
+        id: 'p_' + Date.now(),
+        slug: formData.name.trim().toLowerCase().replace(/\s+/g, '-').replace(/[^a-z0-9\-]/g, ''),
+        name: formData.name,
+        description: 'Description will be updated by admin.',
+        price: Number(formData.price),
+        originalPrice: Number(formData.originalPrice) || Number(formData.price),
+        discount: Math.max(0, Math.round(((Number(formData.originalPrice) || Number(formData.price)) - Number(formData.price)) / (Number(formData.originalPrice) || Number(formData.price)) * 100)),
+        images: [formData.image || 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=600'],
+        category: categoryName,
+        categoryId,
+        brand: formData.brand || 'Brand',
+        rating: 4.2,
+        reviewCount: 0,
+        stock: Number(formData.stock),
+        sku: 'SKU-' + Date.now(),
+        tags: [],
+        specifications: {},
+        reviews: [],
+        isFeatured: false,
+        isBestSeller: false,
+        createdAt: new Date().toISOString(),
+      }
+      dispatch(addProduct(newProduct))
+      toast.success('Product added')
     }
+
     setShowForm(false)
     setEditProduct(null)
   }
@@ -54,7 +101,7 @@ export default function AdminProducts() {
             <h1 className="text-xl font-bold text-gray-900 dark:text-white">Products</h1>
             <p className="text-sm text-gray-500">{products.length} total products</p>
           </div>
-          <button onClick={() => { setEditProduct(null); setFormData({ name: '', brand: '', price: '', originalPrice: '', stock: '', category: '' }); setShowForm(true) }} className="btn-primary flex items-center gap-2 text-sm py-2">
+          <button onClick={() => { setEditProduct(null); setFormData({ name: '', brand: '', price: '', originalPrice: '', stock: '', category: categories[0]?.name || '', image: '' }); setShowForm(true) }} className="btn-primary flex items-center gap-2 text-sm py-2">
             <Plus size={16} /> Add Product
           </button>
         </div>

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp, SlidersHorizontal } from 'lucide-react'
-import { categories } from '../../data/mockData'
-import { products } from '../../data/mockData'
+import { useAppSelector } from '../../hooks/useAppDispatch'
 
 interface Filters {
   categories: string[]
@@ -17,9 +16,10 @@ interface Props {
   onChange: (f: Filters) => void
 }
 
-const brands = [...new Set(products.map(p => p.brand))]
-
 export default function ProductFilters({ filters, onChange }: Props) {
+  const categories = useAppSelector(s => s.categories.items)
+  const products = useAppSelector(s => s.products.items)
+  const brands = [...new Set(products.map(p => p.brand))]
   const [expanded, setExpanded] = useState({ cat: true, brand: true, price: true, rating: true })
   const [mobileOpen, setMobileOpen] = useState(false)
 
@@ -49,12 +49,18 @@ export default function ProductFilters({ filters, onChange }: Props) {
         </button>
         {expanded.cat && (
           <div className="space-y-1.5">
-            {categories.map(cat => (
-              <label key={cat.id} className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={filters.categories.includes(cat.slug)} onChange={() => toggleCategory(cat.slug)} className="accent-amazon-500 w-4 h-4" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">{cat.name}</span>
-              </label>
-            ))}
+            {categories.map(cat => {
+              const count = products.filter(p => p.category.toLowerCase().replace(/ & /g, '-').replace(/ /g, '-') === cat.slug || p.categoryId === cat.id).length
+              return (
+                <label key={cat.id} className="flex items-center gap-2 cursor-pointer justify-between">
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" checked={filters.categories.includes(cat.slug)} onChange={() => toggleCategory(cat.slug)} className="accent-amazon-500 w-4 h-4" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{cat.name}</span>
+                  </div>
+                  <span className="text-[11px] text-gray-400">{count}</span>
+                </label>
+              )
+            })}
           </div>
         )}
       </div>
@@ -67,12 +73,18 @@ export default function ProductFilters({ filters, onChange }: Props) {
         </button>
         {expanded.brand && (
           <div className="space-y-1.5 max-h-48 overflow-y-auto">
-            {brands.map(brand => (
-              <label key={brand} className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={filters.brands.includes(brand)} onChange={() => toggleBrand(brand)} className="accent-amazon-500 w-4 h-4" />
-                <span className="text-sm text-gray-600 dark:text-gray-400">{brand}</span>
-              </label>
-            ))}
+            {brands.map(brand => {
+              const count = products.filter(p => p.brand === brand).length
+              return (
+                <label key={brand} className="flex items-center gap-2 cursor-pointer justify-between">
+                  <div className="flex items-center gap-2">
+                    <input type="checkbox" checked={filters.brands.includes(brand)} onChange={() => toggleBrand(brand)} className="accent-amazon-500 w-4 h-4" />
+                    <span className="text-sm text-gray-600 dark:text-gray-400">{brand}</span>
+                  </div>
+                  <span className="text-[11px] text-gray-400">{count}</span>
+                </label>
+              )
+            })}
           </div>
         )}
       </div>
