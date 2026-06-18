@@ -1,4 +1,4 @@
-# ShopZone — Amazon-style eCommerce App
+# ShopZone —  eCommerce App
 
 A complete, production-ready eCommerce web application built with React + Vite + TypeScript, deployable directly on Vercel.
 
