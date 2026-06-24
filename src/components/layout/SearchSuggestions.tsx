@@ -29,7 +29,7 @@ export default function SearchSuggestions({ query, onSelect }: Props) {
     throw new Error('Search failed')
   }
 
-  const q = query.toLowerCase()
+  const q = query.length <= 1 ? '' : query.toLowerCase()
 
   return products
     .filter(
