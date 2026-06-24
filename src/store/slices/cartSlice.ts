@@ -25,7 +25,7 @@ const cartSlice = createSlice({
   initialState,
   reducers: {
     addToCart(state, action: PayloadAction<{ product: Product; quantity?: number; selectedVariants?: Record<string, string>; price?: number }>) {
-      const { product, quantity = 1, selectedVariants, price } = action.payload
+      const { product, quantity = 2, selectedVariants, price } = action.payload
       const existing = state.items.find(i => i.product.id === product.id && JSON.stringify(i.selectedVariants || {}) === JSON.stringify(selectedVariants || {}))
       if (existing) existing.quantity += quantity
       else state.items.push({ product, quantity, selectedVariants, price })
