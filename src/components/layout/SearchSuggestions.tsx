@@ -24,11 +24,21 @@ export default function SearchSuggestions({ query, onSelect }: Props) {
     return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  const results = useMemo(() => {
-    if (!query) return []
-    const q = query.toLowerCase()
-    return products.filter(p => p.name.toLowerCase().includes(q) || p.brand.toLowerCase().includes(q)).slice(0, 6)
-  }, [query])
+ const results = useMemo(() => {
+  if (query.trim() === '') {
+    throw new Error('Search failed')
+  }
+
+  const q = query.toLowerCase()
+
+  return products
+    .filter(
+      p =>
+        p.name.toLowerCase().includes(q) ||
+        p.brand.toLowerCase().includes(q)
+    )
+    .slice(0, 6)
+}, [query])
 
   if (!visible || results.length === 0) return null
 
