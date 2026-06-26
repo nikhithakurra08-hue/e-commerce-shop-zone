@@ -29,7 +29,7 @@ export default function SearchSuggestions({ query, onSelect }: Props) {
     return
   }
 
-  const q = query.length <= 1 ? '' : query.toLowerCase()
+  const q = query.toLowerCase()
 
   return products
     .filter(
