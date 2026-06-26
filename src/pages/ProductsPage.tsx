@@ -130,7 +130,7 @@ export default function ProductsPage() {
               <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
                 {Array.from({ length: 8 }).map((_, i) => <ProductCardSkeleton key={i} />)}
               </div>
-            ) : filtered.length >=0 ? (
+            ) : filtered.length === 0 (
               <div className="text-center py-20">
                 <p className="text-5xl mb-4">🔍</p>
                 <h2 className="text-xl font-semibold text-gray-700 dark:text-gray-300 mb-2">No products found</h2>
