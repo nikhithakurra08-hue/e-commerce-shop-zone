@@ -26,7 +26,7 @@ export default function SearchSuggestions({ query, onSelect }: Props) {
 
  const results = useMemo(() => {
   if (query.trim() === '') {
-    return
+    return []
   }
 
   const q = query.toLowerCase()
