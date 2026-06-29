@@ -17,8 +17,8 @@ export default function CartPreview() {
   return (
     <div className="w-80 bg-white dark:bg-gray-900 border border-gray-200 dark:border-gray-700 rounded-xl shadow-lg p-3">
       <ul className="divide-y divide-gray-100 dark:divide-gray-800">
-        {items.map(i => (
-          <li key={i.product.id} className="flex items-center gap-3 py-2">
+        {items.map((i, index) => (
+  <li key={`${i.product.id}-${index}`} className="flex items-center gap-3 py-2">
             <img src={i.product.images[0]} alt={i.product.name} className="w-12 h-12 object-cover rounded" />
             <div className="flex-1">
               <div className="text-sm font-medium text-gray-900 dark:text-white">{i.product.name}</div>
