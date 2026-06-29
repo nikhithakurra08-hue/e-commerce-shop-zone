@@ -856,7 +856,7 @@ export const mockOrders: Order[] = [
 ]
 
 export const coupons: Coupon[] = [
-  { id: 'cp1', code: 'SAVE10', type: 'percentage', value: 10, minOrder: 999, maxDiscount: 500, expiresAt: '2025-12-31', usageLimit: 100, usedCount: 45, isActive: true },
+  { id: 'cp1', code: 'SAVE10', type: 'percentage', value: 10, minOrder: 999, maxDiscount: 500, expiresAt: '2027-12-31', usageLimit: 100, usedCount: 45, isActive: true },
   { id: 'cp2', code: 'FLAT200', type: 'flat', value: 200, minOrder: 1999, expiresAt: '2025-12-31', usageLimit: 50, usedCount: 12, isActive: true },
   { id: 'cp3', code: 'NEWUSER', type: 'percentage', value: 20, minOrder: 499, maxDiscount: 300, expiresAt: '2025-12-31', usageLimit: 1, usedCount: 0, isActive: true },
   { id: 'cp4', code: 'WELCOME50', type: 'flat', value: 50, minOrder: 299, expiresAt: '2025-12-31', usageLimit: 200, usedCount: 87, isActive: true },
