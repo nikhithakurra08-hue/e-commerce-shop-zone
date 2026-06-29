@@ -38,7 +38,7 @@ export default function CheckoutPage() {
   const subtotal = items.reduce((acc, i) => acc + (i.price ?? i.product.price) * i.quantity, 0)
   const shipping = calculateShipping(subtotal)
   const tax = calculateTax(subtotal)
-  const couponDiscount = appliedCoupon ? (appliedCoupon.type === 'percentage' ? Math.min(Math.round(subtotal * appliedCoupon.value / 100), appliedCoupon.maxDiscount || Infinity) : appliedCoupon.value) : 0
+  const couponDiscount = appliedCoupon ? (appliedCoupon.type === 'percentage' ? Math.min(Math.round(subtotal * appliedCoupon.value / 100), appliedCoupon.maxDiscount ?? Infinity ) : appliedCoupon.value) : 0
   const total = subtotal + shipping + tax - couponDiscount
 
   const applyCoupon = () => {
