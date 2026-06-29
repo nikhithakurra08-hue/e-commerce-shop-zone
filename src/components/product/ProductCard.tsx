@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { Heart, ShoppingCart, Star, Zap, BadgeCheck, Truck } from 'lucide-react'
 import { useAppDispatch, useAppSelector } from '../../hooks/useAppDispatch'
 import { addToCart } from '../../store/slices/cartSlice'
@@ -15,6 +15,7 @@ interface Props {
 
 export default function ProductCard({ product, dealPrice }: Props) {
   const dispatch = useAppDispatch()
+  const navigate = useNavigate()
   const wishlistIds = useAppSelector(s => s.wishlist.items.map(i => i.product.id))
   const isWishlisted = wishlistIds.includes(product.id)
   const displayPrice = dealPrice ?? product.price
@@ -126,10 +127,12 @@ export default function ProductCard({ product, dealPrice }: Props) {
               className="flex-1 flex items-center justify-center gap-1 btn-primary text-[11px] py-1.5 rounded-lg">
               <ShoppingCart size={11} /> Add to Cart
             </button>
-            <Link to={`/products/${product.slug}`} onClick={e => e.stopPropagation()}
-              className="flex items-center justify-center gap-1 btn-secondary text-[11px] py-1.5 px-2 rounded-lg">
-              <Zap size={11} />
-            </Link>
+            <button
+  onClick={e => { e.preventDefault(); navigate(`/products/${product.slug}`) }}
+  className="flex items-center justify-center gap-1 btn-secondary text-[11px] py-1.5 px-2 rounded-lg"
+>
+  <Zap size={11} />
+</button>
           </div>
         )}
       </div>
