@@ -16,7 +16,8 @@ interface Props {
 export default function ProductCard({ product, dealPrice }: Props) {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
-  const wishlistIds = useAppSelector(s => s.wishlist.items.map(i => i.product.id))
+  const wishlistItems = useAppSelector(s => s.wishlist.items)
+const wishlistIds = wishlistItems.map(i => i.product.id)
   const isWishlisted = wishlistIds.includes(product.id)
   const displayPrice = dealPrice ?? product.price
   const discountPct = dealPrice ? Math.round((1 - dealPrice / product.originalPrice) * 100) : product.discount
