@@ -27,15 +27,16 @@ const authSlice = createSlice({
       let user: User | null = null
       if (email === mockAdmin.email) user = mockAdmin
       else if (email === mockUser.email || email.includes('@')) user = { ...mockUser, email, name: email.split('@')[0] }
-      if (user) {
-        state.user = user
-        state.isAuthenticated = true
-        state.remember = !!action.payload.remember
-        localStorage.setItem('user', JSON.stringify(user))
-if (state.remember) {
-  localStorage.setItem('remember', '1')
-}
-        }
+  if (user) {
+    state.user = user
+    state.isAuthenticated = true
+    state.remember = !!action.payload.remember
+    localStorage.setItem('user', JSON.stringify(user))
+    if (state.remember) {
+      localStorage.setItem('remember', '1')
+    }
+  }
+},
       }
     },
     signup(state, action: PayloadAction<{ name: string; email: string }>) {
