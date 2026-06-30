@@ -38,7 +38,7 @@ export default function SearchSuggestions({ query, onSelect }: Props) {
         p.brand.toLowerCase().includes(q)
     )
     .slice(0, 6)
-}, [query])
+}, }, [query, products])
 
   if (!visible || results.length === 0) return null
 
