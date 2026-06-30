@@ -31,9 +31,10 @@ const authSlice = createSlice({
         state.user = user
         state.isAuthenticated = true
         state.remember = !!action.payload.remember
-        if (state.remember) {
-          localStorage.setItem('user', JSON.stringify(user))
-          localStorage.setItem('remember', '1')
+        localStorage.setItem('user', JSON.stringify(user))
+if (state.remember) {
+  localStorage.setItem('remember', '1')
+}
         }
       }
     },
